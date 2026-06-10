@@ -18,11 +18,26 @@
 
 ## Quickstart
 
+**1. Install**
 ```bash
 uv sync
-cp .env.example .env  # ใส่ OPENROUTER_API_KEY
+```
+
+**2. Configure API key**
+```bash
+cp .env.example .env   # then edit .env and set OPENROUTER_API_KEY=<your key>
+```
+
+**3. Run on sample input**
+```bash
 uv run python ner.py
-uv run jupyter lab    # เปิด eval.ipynb
+```
+
+This runs 5 built-in demo cases (single transaction, multi-transaction, non-transaction, injection attempt, empty input) and prints the extracted JSON for each.
+
+**4. Run eval notebook** *(optional)*
+```bash
+uv run jupyter lab     # open eval.ipynb
 ```
 
 ---
