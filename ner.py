@@ -111,13 +111,13 @@ def check_api_key() -> bool:
         )
         if response.status_code == 200:
             data = response.json()["data"]
-            print(f"✅ API Key ใช้ได้! Usage: ${data['usage']}")
+            print(f"API Key OK — Usage: ${data['usage']}")
             return True
         else:
-            print(f"❌ API Key ผิด: {response.json()}")
+            print(f"API Key error: {response.json()}")
             return False
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         return False
 
 
