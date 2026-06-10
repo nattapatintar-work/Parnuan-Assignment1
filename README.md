@@ -126,6 +126,8 @@ Output: []  ← injection blocked by few-shot + system prompt
 
 ## 3. Prompt / Parsing Strategy
 
+เลือก approach นี้โดยตรงโดยอิงจาก prior knowledge ว่า Thai text มี edge cases สูง — ไม่ได้ iterate จาก zero-shot เพราะ few-shot + structured output เป็น established approach สำหรับ extraction tasks
+
 - **Few-shot examples** ครอบคลุม: single, multi, typo, non-transaction, injection → empty
 - **`response_format: json_object`** บังคับ JSON output ตั้งแต่ต้น
 - **`temperature=0`** เพื่อให้ผลลัพธ์ deterministic และ reproducible
