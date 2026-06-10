@@ -386,11 +386,12 @@ Fast-path cover ได้ **60% ของ requests** โดยไม่เรี
 
 ## 13. Time Spent
 
-~5 ชั่วโมง:
+~6 ชั่วโมง (ไม่ต่อเนื่อง เนื่องจากข้อจำกัดด้านเวลาส่วนตัวของผู้จัดทำ):
 
-- ~45 นาที — dataset design และ labeling (80 examples)
+- ~60 นาที — dataset design และ labeling (80 examples)
 - ~30 นาที — ner.py + validate_transactions()
 - ~60 นาที — eval harness + metrics + failure taxonomy
 - ~45 นาที — debug model availability (gemini-2.0 deprecated, credit หมด)
-- ~60 นาที — README
+- ~90 นาที — README
 - ~40 นาที — eval run ครบ 3 models × 80 examples
+- ~30 นาที — tiered.py regex fast-path + eval
