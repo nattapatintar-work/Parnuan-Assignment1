@@ -18,14 +18,20 @@
 
 ## Quickstart
 
-**1. Install**
+**Prerequisites**
+- Python 3.13+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) — `pip install uv`
+- An [OpenRouter](https://openrouter.ai/) API key (free tier works)
+
+**1. Install dependencies**
 ```bash
 uv sync
 ```
 
 **2. Configure API key**
 ```bash
-cp .env.example .env   # then edit .env and set OPENROUTER_API_KEY=<your key>
+cp .env.example .env
+# edit .env and set: OPENROUTER_API_KEY=<your key>
 ```
 
 **3. Run on sample input**
@@ -37,7 +43,7 @@ This runs 6 built-in demo cases (single transaction, multi-transaction, messy Th
 
 **4. Run eval notebook** *(optional)*
 ```bash
-uv run jupyter lab     # open eval.ipynb
+uv run jupyter lab     # then open eval.ipynb
 ```
 
 ---
