@@ -33,7 +33,7 @@ cp .env.example .env   # then edit .env and set OPENROUTER_API_KEY=<your key>
 uv run python ner.py
 ```
 
-This runs 5 built-in demo cases (single transaction, multi-transaction, non-transaction, injection attempt, empty input) and prints the extracted JSON for each.
+This runs 6 built-in demo cases (single transaction, multi-transaction, messy Thai-English input, non-transaction, injection attempt, empty input) and prints the extracted JSON for each.
 
 **4. Run eval notebook** *(optional)*
 ```bash
@@ -386,12 +386,25 @@ Fast-path cover ได้ **60% ของ requests** โดยไม่เรี
 
 ## 13. Time Spent
 
-~6 ชั่วโมง (ไม่ต่อเนื่อง เนื่องจากข้อจำกัดด้านเวลาส่วนตัวของผู้จัดทำ):
+~8 ชั่วโมง (ไม่ต่อเนื่อง เนื่องจากข้อจำกัดด้านเวลาส่วนตัวของผู้จัดทำ):
 
-- ~60 นาที — dataset design และ labeling (80 examples)
-- ~30 นาที — ner.py + validate_transactions()
-- ~60 นาที — eval harness + metrics + failure taxonomy
-- ~45 นาที — debug model availability (gemini-2.0 deprecated, credit หมด)
-- ~90 นาที — README
-- ~40 นาที — eval run ครบ 3 models × 80 examples
-- ~30 นาที — tiered.py regex fast-path + eval
+- **~120 นาที — Dataset design และ labeling (80 examples)**
+  เริ่มจาก 50 examples แบ่ง 3 buckets แต่พบว่าภาษาไทยมีความยืดหยุ่นสูงมาก input 1 ประโยคสามารถเข้าข่ายได้หลาย category พร้อมกัน ทำให้ต้องออกแบบ bucket ใหม่หลายรอบ ลองแบ่งตาม feature ของภาษา แต่สุดท้ายพบว่าการแบ่งตาม "ลักษณะของ input" (happy/messy/adversarial) ชัดเจนกว่าและไม่ overlap กัน จึงเพิ่มเป็น 80 examples เพื่อลด variance ของผลลัพธ์
+
+- **~30 นาที — ner.py + validate_transactions()**
+  core logic ไม่ซับซ้อน แต่ใช้เวลาออกแบบ validate_transactions() ให้ครอบคลุม edge cases เช่น amount ≤ 0 และ MAX_AMOUNT
+
+- **~60 นาที — Eval harness + metrics + failure taxonomy**
+  ออกแบบ metrics ให้ตอบโจทย์จริงๆ โดยเฉพาะการเปลี่ยนจาก strict match เป็น substring match หลังพบว่า model ตัด prefix `ค่า` ออกซึ่ง semantically ถูกต้อง และออกแบบ failure taxonomy 5 categories
+
+- **~45 นาที — Debug model availability**
+  `gemini-2.0-flash-001` ถูก deprecate ไปแล้ว ต้องหา model ใหม่จาก OpenRouter และเจอปัญหา credit หมดระหว่างรัน eval
+
+- **~90 นาที — README**
+  เขียน 13 sections ให้ครบ เน้น trade-off และ reasoning ที่ defend ได้จริง
+
+- **~40 นาที — Eval run ครบ 3 models × 80 examples**
+  รอ API response และ debug latency ของแต่ละ model
+
+- **~30 นาที — tiered.py regex fast-path + eval**
+  ออกแบบ regex rules สำหรับ single clean transaction และ empty cases วัดผลเทียบกับ LLM-only baseline
