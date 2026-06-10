@@ -52,7 +52,7 @@ def validate_transactions(transactions: list) -> list:
     return valid
 
 
-def extract_transactions(text: str, model: str = "google/gemini-2.5-flash") -> dict:
+def extract_transactions(text: str, model: str = "openai/gpt-4o-mini") -> dict:
     """
     Extract transactions from text using LLM.
     Returns: {"transactions": [...], "cost": float, "usage": dict}
@@ -135,5 +135,5 @@ if __name__ == "__main__":
         for text in tests:
             result = extract_transactions(text)
             print(f"Input : {text!r}")
-            print(f"Output: {result}")
+            print(f"Output: {result['transactions']}")
             print()
