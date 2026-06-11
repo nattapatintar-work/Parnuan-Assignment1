@@ -52,16 +52,37 @@ GPT-4o-mini's failure set is entirely contained within the other models' failure
 
 ## Cost Optimization — Tiered Approach
 
-A regex fast-path (`Tiered.py`) handles simple cases (empty input, no amount, single clean transaction) without calling the LLM. Results vs. LLM-only baseline (GPT-4o-mini):
+A regex fast-path (`tiered.py`) intercepts simple cases before they reach the LLM. Three rules return a result for free; two safety rules force an LLM call even when input looks simple:
 
-| Approach | Exact Match | Cost/1k | LLM Calls | Time Saved |
+**"per 1k"** = cost if 1,000 messages are sent to the system, scaled from the 80-example dataset (×12.5). All figures use GPT-4o-mini pricing.
+
+### Cost Breakdown per Rule (per 1,000 messages)
+
+| Rule | ~Cases/1k | Before (LLM cost) | After (regex) | Saved/1k |
 |---|---:|---:|---:|---:|
-| GPT-4o-mini (LLM only) | 97.5% | 2.72฿ | 80 / 80 | — |
-| Tiered (regex + GPT-4o-mini) | 95.0% | 0.98฿ | 32 / 80 | 50.6% |
+| **single_clean** — 1 number + short detail | 388 | 1.06฿ | 0฿ | **1.06฿** |
+| multi_amount — 2+ numbers | 212 | 0.67฿ | 0.67฿ | — |
+| **no_amount** — no digit at all | 112 | 0.28฿ | 0฿ | **0.28฿** |
+| risk_marker — injection keywords | 100 | 0.27฿ | 0.27฿ | — |
+| **no_detail** — number only, no item name | 62 | 0.16฿ | 0฿ | **0.16฿** |
+| not_money_cue — age / time / unit words | 50 | 0.14฿ | 0.14฿ | — |
+| long_detail / validate_failed | 38 | 0.12฿ | 0.12฿ | — |
+| **empty** — blank / whitespace | 38 | 0.03฿ | 0฿ | **0.03฿** |
+| **Total** | **1,000** | **2.72฿** | **1.20฿** | **1.53฿** |
 
-- Fast path handles **60% of requests** (48/80) for free
-- Cost reduction: **64%** (2.72฿ → 0.98฿ per 1k messages)
-- Accuracy delta: **−2.5 pp** — the 2 cases lost are adversarial edge cases that the fast-path over-eagerly classifies as no-transaction
+Rows without a "Saved" value are routed to the LLM — regex cannot safely handle them (ambiguous amounts, injection risk, non-monetary numbers).
+
+The **single_clean** rule alone accounts for **69% of total savings** (1.06฿ out of 1.53฿). It handles the most common real-world pattern: a short Thai message with one amount and one item.
+
+### Results vs. LLM-Only Baseline
+
+| Approach | Exact Match | Cost/1k | LLM Calls |
+|---|---:|---:|---:|
+| GPT-4o-mini (LLM only) | 97.5% | 2.72฿ | 80 / 80 |
+| Tiered (regex + GPT-4o-mini) | 95.0% | 1.20฿ | 32 / 80 |
+
+- Cost reduction: **56%** (2.72฿ → 1.20฿ per 1k)
+- Accuracy delta: **−2.5 pp** — the 2 cases lost are adversarial edge cases the fast-path over-eagerly classifies as no-transaction
 - At Parnuan's scale, the tradeoff is favorable: the fast-path rules are conservative and can be tightened without retraining the LLM
 
 ---
